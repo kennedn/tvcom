@@ -1,0 +1,134 @@
+#!/usr/bin/python3
+
+from serial import Serial
+from getopt import getopt
+from sys import argv
+from serial_lookup import *
+import atexit
+
+### All protocol information gleamed from user manual for LG5000 series,  ###
+### https://www.lg.com/uk/support/product/lg-37LG5000 (page 109 onward)   ###
+
+def print_help():
+  print(
+'''
+Wrapper script for speaking to an LG tv (37LG5000) via an RS-232 serial connection.
+Command should be formatted as such:
+./tvcom [-lh] [-k name/long_name] [-c "long_name desc" ] [-r "name keycode" ]
+
+-l, --list:           Get a list of defined long_names for commands
+-k, --list_keycodes:  Get a list of keycodes for a given long_name (expects arg)
+-c, --command:        Run a command using long_name and description, get these values from -l and -k, default command is status
+-r, --raw_command:    Run a command using name and keycode, get these values from -l and -k
+-h, --help:           Display this message
+
+Example, to turn device off:
+./tvcom -c power off
+or
+./tvcom -r ka 00
+'''
+)
+  exit(1)
+
+def cleanup():
+  try:
+    tv_serial.close()
+  except:
+    pass
+
+atexit.register(cleanup)
+
+# Defaults
+serial_timeout=3
+tv_serial = Serial('/dev/ttyAMA0', timeout=serial_timeout)
+#tv_serial.write(b'\r')
+device = "tv"
+
+try:
+  options, remainder = getopt(argv[1:], 'k:r:c:lh?', ['list_keycodes=','raw_command=','command=','list', 'help', 'check_conn'])
+except:
+  print("Couldn't parse all parameters passed")
+  print_help() 
+
+for opt, arg in options:
+  if opt in ('-l', '--list'):
+    SerialLookup.list()
+    exit(0)
+  elif opt in ('-k', '--list_keycodes'):
+    SerialLookup.list_keycodes(arg)
+    exit(0)
+  elif opt in ('-r', '--raw_command'):
+    command = arg
+    raw = True
+  elif opt in ('-c', '--command'):
+    command = arg
+    raw = False
+  elif opt in ('-h', '--help'):
+    print_help()
+  else:
+    print("arg is not a recognised paramater")
+    exit(1)
+
+if (len(argv) < 3):
+  print_help()
+
+if remainder:
+  command += ' ' + ' '.join(remainder)
+
+
+# If we want to just send a direct command in the format XX 00 YY 
+# where XX is a keycode and YY is the data
+if raw: 
+  # Sanity check that we are getting passed the right number of chars
+  if (len(command) == 5):
+    # get the correct instance incase we need to do an error lookup later
+    instance = SerialLookup.get_inst_from_name(command[0:2])
+    # write our formatted hex string out to a varaible
+    write_bytes=("{0} 00 {1}\r".format(command[0:2], command[3:5])).encode()
+  else:
+    print_help()
+else:
+  # set default action to 'status' if second arg not given
+  if (len(command.split()) == 2):
+    long_name, cmd = command.split()
+  elif(len(command.split()) == 1):
+    long_name = command.split()[0]
+    cmd = "status"
+  else:
+    print("Need at least one argument for command")
+    exit(5)
+
+  # look for an instance of SerialLookup that goes by our long_name
+  instance = SerialLookup.get_inst_from_long(long_name)
+  # Write our formatted hex string (using instance lookup) out to a variable 
+  write_bytes="{0} 00 {1}\r".format(instance.name,
+                                    instance.get_keycode(cmd)
+                                    ).encode()
+
+# write our data out to the serial socket
+tv_serial.write(write_bytes)
+
+# In normal cases, device always returns 10 chars
+# If the command was not recognised or the device is in
+# a transient state, nothing may be sent. Timeout value defined
+# above to catch those edge cases
+status = tv_serial.read(10)
+status = status.decode()
+if (len(status) != 10 and len(status) != 0):
+  print("The TV didn't respond correctly.\nPlease check your connection and the tv_serial variable.")
+  print(status)
+  exit(5)
+
+# If we sent an FF as data to the serial socket (status request)
+if (write_bytes.split()[-1].upper() == b'FF'):
+  # lookup and print a description of the status value
+  print("{}".format(instance.get_desc(status[7:9])))
+# If we got a NG (not good) status back
+if (status[5:7] == "NG"):
+  print("Device couldn't understand the command")
+  print(status)
+
+tv_serial.close()
+
+
+
