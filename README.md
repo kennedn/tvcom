@@ -11,7 +11,7 @@ tvcom
 
 - Run it with python3 e.g python3 **tvcom**
 
-''''
+````
 ./tvcom [-lh] [-k name/long_name] [-c "long_name desc" ] [-r "name keycode" ]
 
 -l, --list:           Get a list of defined long_names for commands
@@ -19,11 +19,11 @@ tvcom
 -c, --command:        Run a command using long_name and description, get these values from -l and -k, default command is status
 -r, --raw_command:    Run a command using name and keycode, get these values from -l and -k
 -h, --help:           Display this message
-''''
+````
 
 # Example
 
-''''
+````
 $ ./tvcom -k volume
 ###############
 keycode	desc
@@ -36,5 +36,5 @@ $ ./tvcom -c volume 20
 $ ./tvcom -c volume status
 20
 $ 
-''''
+````
 
