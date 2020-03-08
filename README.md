@@ -27,9 +27,9 @@ The below example lists the commands available for the volume keycode, returns t
 
 ````
 $ ./tvcom -k volume
-KEYCODE DESCRIPTION
-FF     status
-00-64	  0-100
+KEYCODE	DESCRIPTION
+FF	status
+00-64	0-100
 $ ./tvcom -c volume status
 10
 $ ./tvcom -c volume 20
