@@ -41,8 +41,7 @@ atexit.register(cleanup)
 # Defaults
 serial_timeout=3
 tv_serial = Serial('/dev/ttyAMA0', timeout=serial_timeout)
-#tv_serial.write(b'\r')
-device = "tv"
+raw = None
 
 try:
   options, remainder = getopt(argv[1:], 'k:r:c:lh?', ['list_keycodes=','raw_command=','command=','list', 'help', 'check_conn'])
@@ -69,14 +68,14 @@ for opt, arg in options:
     print("arg is not a recognised paramater")
     exit(1)
 
-if (len(argv) < 3):
+if (len(argv) < 3 or raw is None):
   print_help()
 
 if remainder:
   command += ' ' + ' '.join(remainder)
 
 
-# If we want to just send a direct command in the format XX 00 YY 
+# If we want to just send a direct command in the format XX YY 
 # where XX is a keycode and YY is the data
 if raw: 
   # Sanity check that we are getting passed the right number of chars
@@ -108,27 +107,29 @@ else:
 # write our data out to the serial socket
 tv_serial.write(write_bytes)
 
-# In normal cases, device always returns 10 chars
-# If the command was not recognised or the device is in
-# a transient state, nothing may be sent. Timeout value defined
-# above to catch those edge cases
+# In normal cases, device always returns 10 chars from a command
+# example format: a 01 OK01x
+# if the device is in a transient state, nothing may be sent or we may
+# actually get a success status despite no action occuring tv side :(
+# Timeout value defined above to catch nothing sent case
 status = tv_serial.read(10)
 status = status.decode()
-if (len(status) != 10 and len(status) != 0):
+if (len(status) != 10): 
   print("The TV didn't respond correctly.\nPlease check your connection and the tv_serial variable.")
   print(status)
   exit(5)
+
+# If we got a NG (not good) status back
+if (status[5:7] == "NG"):
+  print("Device couldn't understand the command")
+  print(status)
+  exit(6)
 
 # If we sent an FF as data to the serial socket (status request)
 if (write_bytes.split()[-1].upper() == b'FF'):
   # lookup and print a description of the status value
   print("{}".format(instance.get_desc(status[7:9])))
-# If we got a NG (not good) status back
-if (status[5:7] == "NG"):
-  print("Device couldn't understand the command")
-  print(status)
 
-tv_serial.close()
-
+cleanup
 
 

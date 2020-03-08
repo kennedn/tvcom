@@ -4,10 +4,11 @@
 # Human readable descriptions of the commands / keycodes via a dictionary.
 class SerialLookup():
 
-  def __init__(self, name, long_name,lookup_table, is_slider=False ):
+  def __init__(self, name, long_name,lookup_table, is_slider=False, read_only=False ):
     self.name = name
     self.long_name = long_name
     self.lookup_table = lookup_table
+    self.read_only = read_only
     # If set we will assume a value from 0 - 100 is always specified as a keycode 
     # and convert to and from hex accordingly
     self.is_slider=is_slider
@@ -35,7 +36,8 @@ class SerialLookup():
         clamped_value = max(0, min(100, int(value))) 
         return hex(int(clamped_value))[2:]
       else:
-        return self.inverse_table[value.lower()]
+        # Just return status if we are read_only
+        return (self.inverse_table[value.lower()] if not self.read_only else "FF")
     except Exception as err:
       print("Lookup for keycode \"{}\" failed".format(value))
       exit(4)
@@ -44,9 +46,7 @@ class SerialLookup():
   # List all the defined commands
   @staticmethod
   def list():
-    print("###################")
-    print("name\tlong_name")
-    print("###################")
+    print("NAME\tLONG_NAME")
     for i in serial_lookup:
       print(i.name + "\t" + i.long_name)
     print("\nUse -k long_name to get possible desc's")
@@ -65,9 +65,7 @@ class SerialLookup():
     dict_tuple = [(k,v) for k,v in inst.lookup_table.items()]
     dict_tuple.sort()
     # print our list, add some fluff if we are a slider
-    print("###############")
-    print("keycode\tdesc")
-    print("###############")
+    print("KEYCODE\tDESCRIPTION")
     for key, value in dict_tuple:
       print("{0}\t{1}".format(key, value)) 
     if (inst.is_slider):
@@ -168,7 +166,8 @@ serial_lookup.append(SerialLookup("kz", "abnormal_state",
         "08": "monitor_off_by_off_timer",
         "09": "monitor_off_by_auto_sleep",
         "0A" : "monitor_off_by_av_board",
-        "FF": "status"}))
+        "FF": "status"},
+        read_only=True))
 serial_lookup.append(SerialLookup("jp", "ism_method_plasma", 
       {"01": "inversion",
        "02": "orbiter",
