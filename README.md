@@ -23,6 +23,8 @@ tvcom
 
 # Example
 
+The below example lists the commands available for the volume keycode, returns the current status of volume (status is implied if second arg not given), changes the volume to 20 and confirms the change happened with another status.
+
 ````
 $ ./tvcom -k volume
 ###############
