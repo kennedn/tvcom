@@ -75,7 +75,7 @@ if remainder:
   command += ' ' + ' '.join(remainder)
 
 
-# If we want to just send a direct command in the format XX YY 
+# If we want to just send a direct command in the format XX 00 YY 
 # where XX is a keycode and YY is the data
 if raw: 
   # Sanity check that we are getting passed the right number of chars
