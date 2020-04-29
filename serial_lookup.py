@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 
 # Defines an object that allows corrolation between LG raw command + keycode pairs and
 # Human readable descriptions of the commands / keycodes via a dictionary.
