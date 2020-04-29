@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 from serial import Serial
 from getopt import getopt
 from sys import argv
@@ -69,7 +68,10 @@ for opt, arg in options:
     exit(1)
 
 if (len(argv) < 3 or raw is None):
-  print_help()
+  if (len(argv) >= 2):
+    command=""
+  else:
+    print_help()
 
 if remainder:
   command += ' ' + ' '.join(remainder)

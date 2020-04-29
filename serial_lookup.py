@@ -34,6 +34,8 @@ class SerialLookup():
     try:
       if self.is_slider and value != "status":
         clamped_value = max(0, min(100, int(value))) 
+        if ( clamped_value != int(value)):
+          print("Value was clamped to {}".format(clamped_value))
         return hex(int(clamped_value))[2:]
       else:
         # Just return status if we are read_only
