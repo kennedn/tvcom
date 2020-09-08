@@ -1,6 +1,11 @@
 tvcom
 ======
-**tvcom** is a  wrapper script for speaking to an LG tv (37LG5000) via an RS-232 serial connection. It was designed to be extensible and could potentially work on similar models. 
+**tvcom** is an assistance module that provides a friendly interface for commanding LG tvs via a serial connection. 
+
+It was designed to be extensible and could potentially work on similar models, most probably those produced between 2009 and 2011.
+
+All raw serial codes that made this script possible were extracted from the user manual for model 37LG5000, you may be able to find similar documentation for your own LG TV by checking your models manual for a section on RS-232 setup:
+https://www.lg.com/uk/support
 
 ## Prerequisites
 
@@ -33,24 +38,44 @@ tvcom
 
 # Example
 
-The below example lists the commands available for the volume keycode, returns the current status of volume, changes the volume to 20 and confirms the change happened with another status.
+You can use -l to obtain a list of valid commands. You can then obtain the valid values for the command by passing -k [keycode or Description]. Below is an example of powering the television on.
 
--c and status are assumed if not otherwise specified
+-c is assumed if no flags are passed
 
 ```console
-$ ./tvcom -k volume
+$./tvcom -l
+ka	power
+kc	aspect_ratio
+kd	screen_mute
+ke	volume_mute
+kf	volume
+kg	contrast
+kh	brightness
+ki	colour
+kj	tint
+kk	sharpness
+kl	osd_select
+km	remote_lock
+kt	balance
+ku	colour_temp
+kz	abnormal_state
+jp	ism_method_plasma
+jq	power_saving_plasma
+ju	auto_configure_vga
+mb	add_skip
+mc	ir_key
+mg	backlight_lcd
+xb	input_select
+$ ./tvcom -k power
 KEYCODE	DESCRIPTION
+00	off
+01	on
 FF	status
-00-64	0-100
-$ ./tvcom -c volume status
-10
-$ ./tvcom -c volume
-10
-$ ./tvcom volume
-10
-$ ./tvcom volume 20
-$ ./tvcom volume
-20
+$ ./tvcom power status
+off
+$ ./tvcom power on
+$ ./tvcom power status
+on
 $ 
 ```
 
