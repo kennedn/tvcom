@@ -1,6 +1,6 @@
 tvcom
 ======
-**tvcom** is an assistance module that provides a friendly interface for commanding LG tvs via a serial connection. 
+**tvcom** is a python module that provides a friendly interface for commanding LG tvs via a serial connection. 
 
 It was designed to be extensible and could potentially work on similar models, most probably those produced between 2009 and 2011.
 
@@ -44,6 +44,7 @@ You can use -l to obtain a list of valid commands. You can then obtain the valid
 
 ```console
 $./tvcom -l
+NAME	LONG_NAME
 ka	power
 kc	aspect_ratio
 kd	screen_mute
@@ -66,6 +67,7 @@ mb	add_skip
 mc	ir_key
 mg	backlight_lcd
 xb	input_select
+
 $ ./tvcom -k power
 KEYCODE	DESCRIPTION
 00	off
