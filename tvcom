@@ -37,7 +37,7 @@ def exception_handler(exception_type, exception, traceback):
 def cleanup():
     try:
         tv_serial.close()
-    except Serial.SerialException:
+    except serial.SerialException:
         pass
 
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     # Defaults
     serial_timeout = 3
-    tv_serial = Serial('/dev/ttyAMA0', timeout=serial_timeout)
+    tv_serial = Serial('/dev/ttyUSB0', timeout=serial_timeout)
     raw = None
 
     try:
