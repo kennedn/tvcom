@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 from serial import Serial
 from getopt import getopt, GetoptError
 from sys import argv
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     # Defaults
     serial_timeout = 3
-    tv_serial = Serial('/dev/ttyUSB0', timeout=serial_timeout)
+    tv_serial = Serial('/dev/rfcomm0', timeout=serial_timeout)
     raw = None
 
     try:
